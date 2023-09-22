@@ -11,4 +11,4 @@ class User(AbstractUser):
     picture = models.CharField(max_length=255)
     
     USERNAME_FIELD ='email'
-    REQUIRED_FIELDS = ['password','name','paternal_surname','maternal_surname','dni']
+    REQUIRED_FIELDS = ['password','name','paternal_surname','maternal_surname','dni','username']

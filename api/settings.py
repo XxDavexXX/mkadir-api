@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'api.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://postgres:postgres@localhost:5432/mysite',
+        default='postgres://mkadir_api_user:4svzaVLZmw8cb20XbtNOmoatj9FTga0H@dpg-ck6r7ifsasqs73b9ll30-a.oregon-postgres.render.com/mkadir_api',
         conn_max_age=600
     )
     # 'default': {
@@ -145,7 +145,7 @@ if not DEBUG:
     # Turn on WhiteNoise storage backend that takes care of compressing static files
     # and creating unique names for each version so they can safely be cached forever.
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    
+
 AUTH_USER_MODEL = 'server.User'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
