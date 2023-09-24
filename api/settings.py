@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
 import os
+from decouple import config
 import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,22 +85,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://mkadir_api_user:4svzaVLZmw8cb20XbtNOmoatj9FTga0H@dpg-ck6r7ifsasqs73b9ll30-a.oregon-postgres.render.com/mkadir_api',
+        default='mysql://'+ config('DB_USER') +':'+ config('DB_PASSWORD') +'@'+ config('DB_HOST') +':'+config('DB_PORT')+'/' + config('DB_NAME'),
         conn_max_age=600
     )
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': config("DB_NAME"),
-    #     'USER': config("DB_USER"),
-    #     'PASSWORD': config("DB_PASSWORD"),
-    #     'HOST': config("DB_HOST"),
-    #     'PORT': config('DB_PORT'),
-    #     'OPTIONS': {
-    #     'sql_mode': 'traditional',
-    # }
-    # }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -142,7 +130,7 @@ if not DEBUG:
     # in your application directory on Render.
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # Turn on storage backend that takes care of compressing static files
     # and creating unique names for each version so they can safely be cached forever.
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

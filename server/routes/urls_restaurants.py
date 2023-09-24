@@ -1,5 +1,5 @@
 from django.urls import path
-from server.views.views_restaurants import RegisterWiew
+from server.views.views_restaurants import getRestaurants
 urlpatterns = [
-    path('',RegisterWiew)
+    path('',getRestaurants.as_view())
 ]

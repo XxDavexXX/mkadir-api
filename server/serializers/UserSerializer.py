@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from server.model.UserModel import User
 # Esto es para convertir los datos a formato JSON
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

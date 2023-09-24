@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from server.models import User
-from ..serializers import UserSerializer
+from server.serializers.UserSerializer import UserSerializer
 import jwt,datetime
 
 # # Create your views here.
@@ -43,7 +43,6 @@ class LoginWiew(APIView):
 class UserView(APIView):
     def get(self,request):
         token = request.COOKIES.get('jwt')
-        print(request.COOKIES)
         if not token:
             raise AuthenticationFailed('Unauthenticated! no token provided')
         
