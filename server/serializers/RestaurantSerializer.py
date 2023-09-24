@@ -3,5 +3,5 @@ from server.model.RestaurantModel import Restaurant
 from server.serializers.UserSerializer import UserSerializer
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Restaurant
+        model = Restaurant  
         fields = ['id','logo_url','name','address','user']    
