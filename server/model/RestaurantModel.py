@@ -1,7 +1,7 @@
 from django.db import models
 from .UserModel import User
 class Restaurant(models.Model):
-    logo_url = models.URLField(max_length=255)
+    logo_url = models.URLField(max_length=2000)
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     user = models.ForeignKey(User,on_delete=models.CASCADE)

@@ -7,3 +7,10 @@ class getRestaurants(APIView):
         restaurants = Restaurant.objects.all()
         serializer = RestaurantSerializer(restaurants, many=True)
         return Response(serializer.data)
+
+class registerRestaurant(APIView):
+    def post(self, request):
+        serializer = RestaurantSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

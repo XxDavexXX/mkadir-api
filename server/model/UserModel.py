@@ -8,7 +8,8 @@ class User(AbstractUser):
     paternal_surname = models.CharField(max_length=255)
     maternal_surname = models.CharField(max_length=255)
     dni = models.CharField(max_length=30)
-    picture = models.URLField(max_length=255)
+    picture = models.URLField(max_length=2000)
+    username = models.CharField(max_length=255, unique=True)
     
     USERNAME_FIELD ='email'
     REQUIRED_FIELDS = ['password','name','paternal_surname','maternal_surname','dni','username']
