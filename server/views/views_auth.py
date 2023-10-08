@@ -8,12 +8,31 @@ import jwt,datetime
 
 # # Create your views here.
 class RegisterView(APIView):
-    def post(self,request):
-        
-        serializer = UserSerializer(data = request.data)
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+
+        # get id and email
+        user_id = serializer.instance.id
+        user_email = serializer.instance.email
+
+        payload = {
+            'id': user_id,
+            'name': user_email,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+            'iat': datetime.datetime.utcnow()
+        }
+        # Generate token JWT
+        token = jwt.encode(payload, 'secret', algorithm='HS256')
+        # Create cookie
+        response = Response()
+        response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None')
+        # Include token in data
+        response.data = {
+            'jwt': token
+        }
+        return response
     
 class LoginWiew(APIView):
     def post(self,request):
