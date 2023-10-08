@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from server.models import User
-from server.serializers.UserSerializer import UserSerializer
+from server.serializers.UserSerializer import UserSerializer,LoginSerializer
 import jwt,datetime
 
 # # Create your views here.
@@ -17,29 +17,34 @@ class RegisterView(APIView):
     
 class LoginWiew(APIView):
     def post(self,request):
-        email = request.data['email']
-        password = request.data['password']
+        serializer = LoginSerializer(data = request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
 
-        user = User.objects.filter(email=email).first()
-        if user is None:
-            raise AuthenticationFailed('User not found')
-        
-        if not user.check_password(password):
-            raise AuthenticationFailed('Icorrect password')
-        
-        payload = {
-            'id': user.id,
-            'name': user.email,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat':datetime.datetime.utcnow()
-        }
-        token = jwt.encode(payload,'secret',algorithm='HS256')
-        response = Response()
-        response.set_cookie(key='jwt',value=token,httponly=True)
-        response.data = {
-            'jwt' : token
-        }
-        return response
+            user = User.objects.filter(email=email).first()
+            if user is None:
+                raise AuthenticationFailed('Email not found')
+            
+            if not user.check_password(password):
+                raise AuthenticationFailed('Icorrect password')
+            
+            payload = {
+                'id': user.id,
+                'name': user.email,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                'iat':datetime.datetime.utcnow()
+            }
+            token = jwt.encode(payload,'secret',algorithm='HS256')
+            response = Response()
+            response.set_cookie(key='jwt',value=token,httponly=True,secure=True, samesite='None')
+            response.data = {
+                'jwt' : token
+            }
+            return response
+        else:
+        # If validation fails, return the validation errors
+            return Response(serializer.errors, status=400)
     
 class UserView(APIView):
     def get(self,request):

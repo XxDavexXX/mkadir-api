@@ -18,7 +18,7 @@ class getMenuIsPublished(APIView):
             return Response({"message": "Not foud menu published"}, status=404)
         
         plates = Plate.objects.filter(restaurant_id=restaurant_id,menu_id=menu.id) #Search plates
-        serializer_plate = PlateSerializer(plates,many=True)
+        serializer_plate = PlateSerializer(plates,many=True)    
         serializer_menu = MenuSerializer(menu)
         return Response({"menu":serializer_menu.data,"plates":serializer_plate.data})
     
