@@ -5,7 +5,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from server.models import User
 from server.serializers.UserSerializer import UserSerializer,LoginSerializer
 import jwt,datetime
-
+from django.conf import settings
 # # Create your views here.
 class RegisterView(APIView):
     def post(self, request):
@@ -13,7 +13,7 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        # get id and email
+        # get id an email
         user_id = serializer.instance.id
         user_email = serializer.instance.email
 
@@ -27,7 +27,13 @@ class RegisterView(APIView):
         token = jwt.encode(payload, 'secret', algorithm='HS256')
         # Create cookie
         response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None')
+        response.set_cookie(key='jwt', value=token, httponly=True)
+        if settings.DEBUG:
+            # In local development, do not use HTTPS
+            pass
+        else:
+            # In production, use HTTPS and allow SameSite=None for cross-origin cookies
+            response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None')
         # Include token in data
         response.data = {
             'jwt': token
@@ -56,7 +62,15 @@ class LoginWiew(APIView):
             }
             token = jwt.encode(payload,'secret',algorithm='HS256')
             response = Response()
-            response.set_cookie(key='jwt',value=token,httponly=True,secure=True, samesite='None')
+            print(settings.DEBUG)
+            response.set_cookie(key='jwt', value=token, httponly=True)
+
+            if settings.DEBUG:
+                # In local development, do not use HTTPS
+                pass
+            else:
+                # In production, use HTTPS and allow SameSite=None for cross-origin cookies
+                response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None')
             response.data = {
                 'jwt' : token
             }
