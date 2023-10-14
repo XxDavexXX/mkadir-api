@@ -1,18 +1,52 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from server.model.RestaurantModel import Restaurant
+from server.middlewares.AuthMiddleware import AuthRequired
+from rest_framework.exceptions import AuthenticationFailed
+
 # from server.model.MenuModel import Menu
 from server.serializers.RestaurantSerializer import RestaurantSerializer
-class getRestaurants(APIView):
+class getAllRestaurants(APIView):
     def get(self, request):
-        # menu = Menu.objects.all()
         restaurants = Restaurant.objects.all().order_by('-is_open')
         serializer = RestaurantSerializer(restaurants, many=True)
         return Response(serializer.data)
-
+    
 class registerRestaurant(APIView):
     def post(self, request):
+        try:
+            user = AuthRequired(request) 
+            request.data['user'] = user['id'] 
+        except AuthenticationFailed as e:
+            return Response({'message': str(e)}, status=401) 
+        
         serializer = RestaurantSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+    
+class getRestaurants(APIView):
+    def get(self, request):
+        try:
+            user = AuthRequired(request)  
+        except AuthenticationFailed as e:
+            return Response({'message': str(e)}, status=401) 
+        restaurants = Restaurant.objects.filter(user=user['id']).order_by('-is_open')
+        serializer = RestaurantSerializer(restaurants, many=True)
+        return Response(serializer.data)
+
+class getRestaurant(APIView):
+    def get(self, request,restaurant_id):
+        try:
+            user = AuthRequired(request)  
+        except AuthenticationFailed as e:
+            return Response({'message': str(e)}, status=401) 
+        restaurant = Restaurant.objects.get(user=user['id'], id=restaurant_id)
+        if not restaurant:
+            return Response({'message': 'Restarant not found'}, status=401) 
+        serializer = RestaurantSerializer(restaurant)
+        return Response(serializer.data)
+
+
+
+

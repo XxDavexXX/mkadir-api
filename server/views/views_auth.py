@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
@@ -63,7 +63,8 @@ class LoginWiew(APIView):
         else:
         # If validation fails, return the validation errors
             return Response(serializer.errors, status=400)
-    
+
+
 class UserView(APIView):
     def get(self,request):
         token = request.COOKIES.get('jwt')

@@ -18,6 +18,7 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/',include('server.routes.urls_api')),
     path('api/auth/',include('server.routes.urls_auth')),
     path('api/restaurants/',include('server.routes.urls_restaurants'))
     # path('api/employees/',include('server.routes.urls_employees')),
