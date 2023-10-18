@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from server.model.RestaurantModel import Restaurant
@@ -41,12 +42,40 @@ class getRestaurant(APIView):
             user = AuthRequired(request)  
         except AuthenticationFailed as e:
             return Response({'message': str(e)}, status=401) 
-        restaurant = Restaurant.objects.get(user=user['id'], id=restaurant_id)
-        if not restaurant:
-            return Response({'message': 'Restarant not found'}, status=401) 
+        try:
+            restaurant = Restaurant.objects.get(user=user['id'], id=restaurant_id)
+        except Restaurant.DoesNotExist:
+            return Response({'message': 'Restaurant not found'}, status=404) 
         serializer = RestaurantSerializer(restaurant)
         return Response(serializer.data)
+    
+class deleteRestaurant(APIView):
+    def delete(self, request,restaurant_id):
+        try:
+            user = AuthRequired(request)  
+        except AuthenticationFailed as e:
+            return Response({'message': str(e)}, status=401) 
+        try:
+            restaurant = Restaurant.objects.get(user=user['id'], id=restaurant_id)
+        except Restaurant.DoesNotExist:
+            return Response({'message': 'Restaurant not found'}, status=404) 
+        restaurant.delete()
+        return Response({'message': 'Restaurant deleted successfully'}, status=200)
 
-
-
+class updateRestaurant(APIView):
+    def put(self, request, restaurant_id):
+        try:
+            user = AuthRequired(request)
+        except AuthenticationFailed as e:
+            return Response({'message': str(e)}, status=401)
+        try:
+            restaurant = Restaurant.objects.get(user=user['id'], id=restaurant_id)
+        except Restaurant.DoesNotExist:
+            return Response({'message': 'Restaurant not found'}, status=404)
+        
+        serializer = RestaurantSerializer(restaurant, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
 
