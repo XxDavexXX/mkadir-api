@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from server.models import User
-from server.serializers.UserSerializer import UserSerializer,LoginSerializer
+from server.serializers.UserSerializer import UserSerializer,LoginSerializer,PasswordSerializer
 import jwt,datetime
 # # Create your views here.
 class RegisterView(APIView):
@@ -81,6 +81,29 @@ class UserView(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+class VerifyPassword(APIView):
+    def post(self, request):
+        token = request.COOKIES.get('jwt')
+        if not token:
+            raise AuthenticationFailed('Unauthenticated! No se proporcionó ningún token.')
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('No autenticado! El token ha expirado.')
+        serializer = PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            password = serializer.validated_data['password']
+            user = User.objects.filter(id=payload['id']).first()
+            if user:
+                if not user.check_password(password):
+                    raise AuthenticationFailed(['Contraseña incorrecta'])
+            else:
+                raise AuthenticationFailed('Usuario no encontrado')
+        else:
+            raise AuthenticationFailed('Datos inválidos')
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
 class LogoutView(APIView):
     def post(self,request):

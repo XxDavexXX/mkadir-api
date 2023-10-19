@@ -27,3 +27,6 @@ class RegisterSerializer(UserSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True, error_messages={'required': 'This field is required.'})
     password = serializers.CharField(required=True, error_messages={'required': 'This field is required.'})
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True, error_messages={'required': 'This field is required.'})
