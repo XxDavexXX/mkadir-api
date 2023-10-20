@@ -25,7 +25,21 @@ class registerRestaurant(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-    
+
+class createRestaurant(APIView):
+    def post(self, request):
+        try:
+            user = AuthRequired(request) 
+            request.data['user'] = user['id'] 
+        except AuthenticationFailed as e:
+            return Response({'message': str(e)}, status=401) 
+        
+        serializer = RestaurantSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
 class getRestaurants(APIView):
     def get(self, request):
         try:

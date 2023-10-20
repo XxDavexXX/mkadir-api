@@ -1,8 +1,9 @@
 from django.urls import path,include
-from server.views.views_restaurants import getAllRestaurants,getRestaurants,registerRestaurant,getRestaurant,deleteRestaurant,updateRestaurant
+from server.views.views_restaurants import createRestaurant,getAllRestaurants,getRestaurants,registerRestaurant,getRestaurant,deleteRestaurant,updateRestaurant
 urlpatterns = [
     path('all',getAllRestaurants.as_view()),
     path('',getRestaurants.as_view()),
+    path('create',createRestaurant.as_view()),
     path('register',registerRestaurant.as_view()),
     path('<int:restaurant_id>',getRestaurant.as_view()),
     path('delete/<int:restaurant_id>',deleteRestaurant.as_view()),

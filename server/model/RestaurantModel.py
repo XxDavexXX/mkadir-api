@@ -1,7 +1,7 @@
 from django.db import models
 from .UserModel import User
 class Restaurant(models.Model):
-    logo_url = models.URLField(max_length=2000)
+    logo_url = models.URLField(max_length=2000, default=None, blank=True, null=True)
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     is_open = models.BooleanField(default=True)
