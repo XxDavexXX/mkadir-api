@@ -1,17 +1,30 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from server.model.RestaurantModel import Restaurant
 from server.middlewares.AuthMiddleware import AuthRequired
 from rest_framework.exceptions import AuthenticationFailed
 
 # from server.model.MenuModel import Menu
 from server.serializers.RestaurantSerializer import RestaurantSerializer
+
+class RestaurantPagination(PageNumberPagination):
+    page_size = 2
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class getAllRestaurants(APIView):
     def get(self, request):
-        restaurants = Restaurant.objects.all().order_by('-is_open')
-        serializer = RestaurantSerializer(restaurants, many=True)
-        return Response(serializer.data)
+        # Obtenemos el número de página de los parámetros de consulta
+        page_number = request.query_params.get('page', 1)
+        paginator = RestaurantPagination()
+        restaurants = Restaurant.objects.all().order_by('-is_open') 
+        # Paginamos los resultados para la página solicitada
+        paginated_restaurants = paginator.paginate_queryset(restaurants, request)
+        serializer = RestaurantSerializer(paginated_restaurants, many=True)
+        # Devolvemos los resultados paginados
+        return paginator.get_paginated_response(serializer.data)
+
     
 class registerRestaurant(APIView):
     def post(self, request):

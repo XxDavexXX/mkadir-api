@@ -55,7 +55,7 @@ class LoginWiew(APIView):
             token = jwt.encode(payload,'secret',algorithm='HS256')
             response = Response()
             expires = datetime.datetime.utcnow() + datetime.timedelta(days=2)
-            response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None', expires=expires)
+            response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None',expires=expires)
             response.data = {
                 'jwt' : token
             }
