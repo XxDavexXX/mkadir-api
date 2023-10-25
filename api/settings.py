@@ -146,7 +146,6 @@ LOGIN_URL = '/user'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", #Localhost
-    "https://appmkadir.netlify.app",
     config('URI_CLIENT') #deployment
 ]
 CORS_ALLOW_CREDENTIALS = True

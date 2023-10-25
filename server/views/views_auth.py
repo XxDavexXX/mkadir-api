@@ -52,6 +52,7 @@ class LoginWiew(APIView):
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
                 'iat':datetime.datetime.utcnow()
             }
+            
             token = jwt.encode(payload,'secret',algorithm='HS256')
             response = Response()
             expires = datetime.datetime.utcnow() + datetime.timedelta(days=2)
@@ -59,6 +60,7 @@ class LoginWiew(APIView):
             response.data = {
                 'jwt' : token
             }
+            print(token)
             return response
         else:
         # If validation fails, return the validation errors
