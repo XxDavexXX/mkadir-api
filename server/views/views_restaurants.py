@@ -2,12 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from server.model.RestaurantModel import Restaurant
+from server.model.MenuModel import Menu
 from server.middlewares.AuthMiddleware import AuthRequired
 from rest_framework.exceptions import AuthenticationFailed
 
 # from server.model.MenuModel import Menu
 from server.serializers.RestaurantSerializer import RestaurantSerializer
-
+from server.serializers.MenuSerializer import MenuSerializer
 class RestaurantPagination(PageNumberPagination):
     page_size = 2
     page_size_query_param = 'page_size'
@@ -17,13 +18,28 @@ class getAllRestaurants(APIView):
     def get(self, request):
         # Obtenemos el número de página de los parámetros de consulta
         page_number = request.query_params.get('page', 1)
-        paginator = RestaurantPagination()
-        restaurants = Restaurant.objects.all().order_by('-is_open') 
+        paginator = PageNumberPagination()
+        paginator.page_size = 10  # Ajusta según tus necesidades
+
+        restaurants = Restaurant.objects.all().order_by('-is_open')
+        
         # Paginamos los resultados para la página solicitada
         paginated_restaurants = paginator.paginate_queryset(restaurants, request)
-        serializer = RestaurantSerializer(paginated_restaurants, many=True)
-        # Devolvemos los resultados paginados
-        return paginator.get_paginated_response(serializer.data)
+        
+        # Serializamos los restaurantes
+        restaurant_serializer = RestaurantSerializer(paginated_restaurants, many=True)
+        
+        # Obtenemos los menús para cada restaurante
+        serialized_data = []
+        for restaurant_data in restaurant_serializer.data:
+            restaurant_id = restaurant_data['id']
+            menu = Menu.objects.filter(restaurant_id=restaurant_id, is_published=True)
+            menu_serializer = MenuSerializer(menu, many=True)
+            restaurant_data['menus'] = menu_serializer.data
+            serialized_data.append(restaurant_data)
+
+        # Devolvemos los resultados paginados con los menús incluidos
+        return paginator.get_paginated_response(serialized_data)
 
     
 class registerRestaurant(APIView):
