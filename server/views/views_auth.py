@@ -57,10 +57,20 @@ class LoginWiew(APIView):
             response = Response()
             expires = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             response.set_cookie(key='jwt', value=token, httponly=True, secure=True, samesite='None',expires=expires)
-            response.data = {
-                'jwt' : token
+            # Convertir el objeto User a un diccionario antes de serializarlo
+            user_data = {
+                'id': user.id,
+                'email': user.email,
+                'name': user.name,
+                'paternal_surname': user.paternal_surname,
+                'maternal_surname': user.maternal_surname,
+                'dni': user.dni,
+                'picture': user.picture
             }
-            print(token)
+            response.data = {
+                'jwt': token,
+                'user': user_data
+            }
             return response
         else:
         # If validation fails, return the validation errors
@@ -72,9 +82,7 @@ class UserView(APIView):
         token = request.COOKIES.get('jwt')
         if not token:
             raise AuthenticationFailed('Unauthenticated! no token provided')
-        
         try :
-            
             payload = jwt.decode(token,'secret',algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('Unauthenticated! a expirado')
