@@ -33,6 +33,9 @@ class createEmployee(APIView):
         age = request.data.get('age')
         phone = request.data.get('phone')
 
+        if not restaurant_id:
+            return Response({'message': 'Restaurant ID is required'}, status=400),
+        
         if not (user_id and role_id):
             return Response({'message': 'User, Role, and DNI are required fields'}, status=400)
 
@@ -53,6 +56,10 @@ class createEmployee(APIView):
             address=address, age=age, phone=phone
         )
         employee.save()
+        
+        # user_picture = user.picture.url if user.picture else ''
+        # employee.user_picture = user_picture
+
         serializer = EmployeeSerializer(employee)
         return Response(serializer.data, status=201)
 
