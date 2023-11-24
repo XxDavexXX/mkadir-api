@@ -3,7 +3,7 @@ from server.views.views_restaurants import createRestaurant,getAllRestaurants,ge
 from server.views.views_employees import EmployeeDetailView
 
 urlpatterns = [
-    path('all',getAllRestaurants.as_view()),
+    path('pages',getAllRestaurants.as_view()),
     path('',getRestaurants.as_view()),
     path('create',createRestaurant.as_view()),
     path('register',registerRestaurant.as_view()),

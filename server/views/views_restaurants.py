@@ -1,17 +1,41 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from server.model.RestaurantModel import Restaurant
+from server.model.MenuModel import Menu
 from server.middlewares.AuthMiddleware import AuthRequired
 from rest_framework.exceptions import AuthenticationFailed
 
 # from server.model.MenuModel import Menu
 from server.serializers.RestaurantSerializer import RestaurantSerializer
+from server.serializers.MenuSerializer import MenuSerializer
+
 class getAllRestaurants(APIView):
     def get(self, request):
+        page_number = request.query_params.get('page', 1)
+        paginator = PageNumberPagination()
+        paginator.page_size = 2
         restaurants = Restaurant.objects.all().order_by('-is_open')
-        serializer = RestaurantSerializer(restaurants, many=True)
-        return Response(serializer.data)
+        # Filtramos los restaurantes que tienen menús publicados
+        restaurants_with_menus = []
+        for restaurant in restaurants:
+            if Menu.objects.filter(restaurant_id=restaurant.id, is_published=True).exists():
+                restaurants_with_menus.append(restaurant)
+        
+        # Paginamos los resultados para la página solicitada
+        paginated_restaurants = paginator.paginate_queryset(restaurants_with_menus, request)
+        
+        # Serializamos los restaurantes con sus menús
+        serialized_data = []
+        for restaurant in paginated_restaurants:
+            restaurant_data = RestaurantSerializer(restaurant).data
+            menu = Menu.objects.filter(restaurant_id=restaurant.id, is_published=True)
+            menu_serializer = MenuSerializer(menu, many=True)
+            restaurant_data['menus'] = menu_serializer.data
+            serialized_data.append(restaurant_data)
+
+        # Devolvemos los resultados paginados con los menús incluidos
+        return paginator.get_paginated_response(serialized_data)
     
 class registerRestaurant(APIView):
     def post(self, request):
