@@ -113,3 +113,13 @@ class LogoutView(APIView):
             'message': 'Logout success'
         }
         return response
+
+class getUserViewCode(APIView):
+    def get(self,request,user_code):
+        try:
+            userCode = User.objects.get(user_code=user_code)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=404)
+        serializer = UserSerializer(userCode)
+        return Response(serializer.data)
+       # return Response({'message': 'userCode'})

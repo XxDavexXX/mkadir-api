@@ -4,7 +4,7 @@ from server.model.UserModel import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'password', 'name', 'paternal_surname', 'maternal_surname', 'dni', 'picture', 'username']
+        fields = ['id','user_code', 'email', 'password', 'name', 'paternal_surname', 'maternal_surname', 'dni', 'picture', 'username']
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'required': True, 'error_messages': {'required': 'This field is required.'}},

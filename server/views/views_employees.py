@@ -8,6 +8,8 @@ from server.middlewares.AuthMiddleware import AuthRequired
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from server.model.RestaurantModel import Restaurant
+from django.db import IntegrityError
+from server.serializers.UserSerializer import UserSerializer
 
 class getEmployees(APIView):
     def get(self, request, restaurant_id):
@@ -28,7 +30,6 @@ class createEmployee(APIView):
     def post(self, request, restaurant_id):
         user_id = request.data.get('user')
         role_id = request.data.get('role')
-        dni = request.data.get('dni')
         address = request.data.get('address')
         age = request.data.get('age')
         phone = request.data.get('phone')
@@ -37,9 +38,15 @@ class createEmployee(APIView):
             return Response({'message': 'Restaurant ID is required'}, status=400),
         
         if not (user_id and role_id):
-            return Response({'message': 'User, Role, and DNI are required fields'}, status=400)
+            return Response({'message': 'User and Role are required fields'}, status=400)
 
         restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+        
+        #verificamos que no exista un usuario repetido
+        
+        existing_employee = Employee.objects.filter(user__id=user_id)
+        if existing_employee.exists():
+            return Response({'message': 'This user is already registered as an employee'}, status=400)
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -52,17 +59,16 @@ class createEmployee(APIView):
 
         # Crea un nuevo empleado con los datos proporcionados
         employee = Employee(
-            user=user, restaurant=restaurant, role=role, dni=dni,
+            user=user, restaurant=restaurant, role=role,
             address=address, age=age, phone=phone
         )
-        employee.save()
-        
-        # user_picture = user.picture.url if user.picture else ''
-        # employee.user_picture = user_picture
-
-        serializer = EmployeeSerializer(employee)
-        return Response(serializer.data, status=201)
-
+        try:
+            employee.save() 
+            serializer = EmployeeSerializer(employee)
+            return Response(serializer.data, status=201)
+        except IntegrityError:
+           return Response({'message': 'This user is already registered as an employee'}, status=400)
+       
 class deleteEmployee(APIView):
     def delete(self, request, restaurant_id, employee_id):
         try:
@@ -80,7 +86,7 @@ class updateEmployee(APIView):
             return Response({'message': 'Employee not found'}, status=404)
   
         new_role_id = request.data.get('role')
-        new_user_id = request.data.get('user')
+        new_user_code = request.data.get('user')
         
         if new_role_id is not None:
             try:
@@ -89,9 +95,9 @@ class updateEmployee(APIView):
             except Role.DoesNotExist:
                 return Response({'message': 'New role not found'}, status=404)
         
-        if new_user_id is not None:
+        if new_user_code is not None:
             try:
-                new_user = User.objects.get(id=new_user_id)
+                new_user = User.objects.get(user_code=new_user_code)
                 employee.user = new_user
             except User.DoesNotExist:
                 return Response({'message': 'New user not found'}, status=404)
@@ -101,10 +107,10 @@ class updateEmployee(APIView):
             employee.address = request.data['address']
         if 'age' in request.data:
             employee.age = request.data['age']
-        if 'dni' in request.data:
-            employee.dni = request.data['dni']
         if 'phone' in request.data:
             employee.phone = request.data['phone']
 
         employee.save()
+        print(employee)
         return Response({'message': 'Employee updated successfully'}, status=200)
+

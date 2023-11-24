@@ -21,4 +21,7 @@ urlpatterns = [
 
     #Menus
     path('<int:restaurant_id>/menus/',include('server.routes.urls_menus')),
+    # Roles
+    path('roles/',include('server.routes.urls_role')),
+    
 ]

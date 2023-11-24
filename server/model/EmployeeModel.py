@@ -8,7 +8,6 @@ class Employee(models.Model):
     user = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
     restaurant = models.ForeignKey(Restaurant,on_delete=models.SET_NULL, null=True)
     role = models.ForeignKey(Role,on_delete=models.SET_NULL, null=True)
-    dni = models.CharField(max_length=10)
     address = models.CharField(max_length=100)
     age = models.CharField(max_length=100)
     phone = models.CharField(max_length=9)
