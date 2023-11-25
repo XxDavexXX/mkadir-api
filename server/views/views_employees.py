@@ -44,6 +44,7 @@ class createEmployee(APIView):
         
         #verificamos que no exista un usuario repetido
         
+        
         existing_employee = Employee.objects.filter(user__id=user_id)
         if existing_employee.exists():
             return Response({'message': 'This user is already registered as an employee'}, status=400)
