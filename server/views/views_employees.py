@@ -4,12 +4,9 @@ from server.model.EmployeeModel import Employee
 from server.model.RoleModel import Role
 from server.model.UserModel import User
 from server.serializers.EmployeeSerializer import EmployeeSerializer
-from server.middlewares.AuthMiddleware import AuthRequired
-from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from server.model.RestaurantModel import Restaurant
 from django.db import IntegrityError
-from server.serializers.UserSerializer import UserSerializer
 
 class getEmployees(APIView):
     def get(self, request, restaurant_id):
@@ -35,28 +32,30 @@ class createEmployee(APIView):
         phone = request.data.get('phone')
 
         if not restaurant_id:
-            return Response({'message': 'Restaurant ID is required'}, status=400),
+            return Response({'Restaurant ID is required'}, status=400),
         
-        if not (user_id and role_id):
-            return Response({'message': 'User and Role are required fields'}, status=400)
+        if not (user_id):
+            return Response({'User are required'}, status=400)
+        if not (role_id):
+            return Response({'Role are required'}, status=400)
 
         restaurant = get_object_or_404(Restaurant, id=restaurant_id)
         
         #verificamos que no exista un usuario repetido
         
-        
-        existing_employee = Employee.objects.filter(user__id=user_id)
+
+        existing_employee = Employee.objects.filter(restaurant=restaurant_id,user__id=user_id)
         if existing_employee.exists():
-            return Response({'message': 'This user is already registered as an employee'}, status=400)
+            return Response({'This user is already registered as an employee'}, status=400)
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response({'message': 'User not found'}, status=404)
+            return Response({'User not found'}, status=404)
 
         try:
             role = Role.objects.get(id=role_id)
         except Role.DoesNotExist:
-            return Response({'message': 'Role not found'}, status=404)
+            return Response({'Role not found'}, status=404)
 
         # Crea un nuevo empleado con los datos proporcionados
         employee = Employee(
@@ -68,7 +67,7 @@ class createEmployee(APIView):
             serializer = EmployeeSerializer(employee)
             return Response(serializer.data, status=201)
         except IntegrityError:
-           return Response({'message': 'This user is already registered as an employee'}, status=400)
+           return Response({'This user is already registered as an employee'}, status=400)
        
 class deleteEmployee(APIView):
     def delete(self, request, restaurant_id, employee_id):
