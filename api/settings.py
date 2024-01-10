@@ -83,9 +83,16 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='mysql://'+ config('DB_USER') +':'+ config('DB_PASSWORD') +'@'+ config('DB_HOST') +':'+config('DB_PORT')+'/' + config('DB_NAME'),
+#         conn_max_age=600
+#     )
+# }
+
 DATABASES = {
     'default': dj_database_url.config(
-        default='mysql://'+ config('DB_USER') +':'+ config('DB_PASSWORD') +'@'+ config('DB_HOST') +':'+config('DB_PORT')+'/' + config('DB_NAME'),
+        default='mysql://root:@localhost:3306/elJardinDeNaru',
         conn_max_age=600
     )
 }
